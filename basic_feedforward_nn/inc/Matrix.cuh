@@ -22,17 +22,17 @@ class Matrix
 {
 public:
 	Matrix(int N, MatrixInitType init_type);
-	Matrix(std::vector<int> data, int N);
+	Matrix(std::vector<float> data, int N);
 	~Matrix();
 
 	void matrix_add(Matrix& matrix_a, Matrix& matrix_b);
 	void matrix_scale(Matrix& matrix_a, int factor_scale);
 	void matrix_mul(Matrix& matrix_a, Matrix& matrix_b);
 
-	std::vector<int> export_to_host();
+	std::vector<float> export_to_host();
 
 private:
-	int* dev_data;
+	float* dev_data;
 	int N;
 };
 

@@ -16,7 +16,7 @@
 * Return:
 *  - None.
 */
-__global__ void matrixMul(const int* a, const int* b, int* c, int N);
+__global__ void matrixMul(const float* a, const float* b, float* c, int N);
 
 /*
 * Adds two matrices a and b, storing the result in matrix c.
@@ -30,7 +30,7 @@ __global__ void matrixMul(const int* a, const int* b, int* c, int N);
 * Return:
 *  - None.
 */
-__global__ void matrixAdd(const int* a, const int* b, int* c, int N);
+__global__ void matrixAdd(const float* a, const float* b, float* c, int N);
 
 /*
 * Scales a matrix a by a given factor, storing the result in matrix c.
@@ -44,6 +44,6 @@ __global__ void matrixAdd(const int* a, const int* b, int* c, int N);
 * Return:
 *  - None.
 */
-__global__ void matrixScale(const int* a, int factor, int* c, int N);
+__global__ void matrixScale(const float* a, int factor, float* c, int N);
 
 #endif // !CUDA_MATRIX_OPS

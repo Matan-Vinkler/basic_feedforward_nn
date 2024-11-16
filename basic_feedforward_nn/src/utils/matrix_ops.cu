@@ -1,6 +1,6 @@
 #include "../../inc/utils/matrix_ops.cuh"
 
-__global__ void matrixMul(const int* a, const int* b, int* c, int N)
+__global__ void matrixMul(const float* a, const float* b, float* c, int N)
 {
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = blockIdx.x * blockDim.x + threadIdx.x;
@@ -12,7 +12,7 @@ __global__ void matrixMul(const int* a, const int* b, int* c, int N)
     }
 }
 
-__global__ void matrixAdd(const int* a, const int* b, int* c, int N)
+__global__ void matrixAdd(const float* a, const float* b, float* c, int N)
 {
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = blockIdx.x * blockDim.x + threadIdx.x;
@@ -20,7 +20,7 @@ __global__ void matrixAdd(const int* a, const int* b, int* c, int N)
     c[row * N + col] = a[row * N + col] + b[row * N + col];
 }
 
-__global__ void matrixScale(const int* a, int factor, int* c, int N)
+__global__ void matrixScale(const float* a, int factor, float* c, int N)
 {
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = blockIdx.x * blockDim.x + threadIdx.x;
