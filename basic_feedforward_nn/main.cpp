@@ -2,6 +2,8 @@
 #include <vector>
 #include <algorithm>
 
+#include <cublas_v2.h>
+
 #include "inc/Matrix.cuh"
 #include "inc/utils/verity_results.h"
 
@@ -10,36 +12,53 @@ int main()
     std::cout << "Starting..." << std::endl;
     srand((unsigned int)time(NULL));
 
-    int N = 1 << 10;
+    cublasHandle_t handle;
+    cublasCreate(&handle);
 
-    std::vector<float> h_a(N * N);
-    std::vector<float> h_b(N * N);
+    int NUM_ROWS_A = 512;
+    int NUM_COLS_A = 128;
+
+    int NUM_ROWS_B = NUM_ROWS_A;
+    int NUM_COLS_B = NUM_COLS_A;
+
+    int NUM_ROWS_C = NUM_COLS_A;
+    int NUM_COLS_C = 256;
+
+    std::vector<float> h_a(NUM_ROWS_A * NUM_COLS_A);
+    std::vector<float> h_b(NUM_ROWS_B * NUM_COLS_B);
+    std::vector<float> h_c(NUM_ROWS_C * NUM_COLS_C);
+
     std::generate(h_a.begin(), h_a.end(), []() { return (float)rand() / (float)(RAND_MAX / 1); });
     std::generate(h_b.begin(), h_b.end(), []() { return (float)rand() / (float)(RAND_MAX / 1); });
+    std::generate(h_c.begin(), h_c.end(), []() { return (float)rand() / (float)(RAND_MAX / 1); });
 
-    Matrix A(h_a, N);
-    Matrix B(h_b, N);
-    Matrix C1(N, MatrixInitType::ZERO);
-    Matrix C2(N, MatrixInitType::ZERO);
-    Matrix C3(N, MatrixInitType::ZERO);
+    Matrix A(handle, h_a, NUM_ROWS_A, NUM_COLS_A);
+    Matrix B(handle, h_b, NUM_ROWS_B, NUM_COLS_B);
+    Matrix C(handle, h_c, NUM_ROWS_C, NUM_COLS_C);
 
-    C1.matrix_add(A, B);
-    std::vector<float> result1 = C1.export_to_host();
+    Matrix D1(handle, NUM_ROWS_A, NUM_COLS_A, MatrixInitType::ZERO); // D1 = A + B
+    Matrix D2(handle, NUM_ROWS_A, NUM_COLS_A, MatrixInitType::ZERO); // D2 = scalar * A
+    Matrix D3(handle, NUM_ROWS_A, NUM_COLS_C, MatrixInitType::ZERO); // D3 = A * C
 
-    int factor = 4;
-    C2.matrix_scale(A, factor);
-    std::vector<float> result2 = C2.export_to_host();
+    D1.matrix_add(A, B);
+    std::vector<float> result1 = D1.export_to_host();
 
-    C3.matrix_mul(A, B);
-    std::vector<float> result3 = C3.export_to_host();
+    int scalar = 4;
+    D2.matrix_scale(A, scalar);
+    std::vector<float> result2 = D2.export_to_host();
 
-    std::cout << "Calculated CUDA Matrices, now verifying..." << std::endl;
+    D3.matrix_mul(A, C);
+    std::vector<float> result3 = D3.export_to_host();
 
-    verify_result_add(h_a, h_b, result1, N);
-    verify_result_scale(h_a, factor, result2, N);
-    verify_result_mul(h_a, h_b, result3, N);
+    std::cout << "Calculated matrices, now verifying..." << std::endl;
+
+    verify_result_add(h_a, h_b, result1, NUM_ROWS_A, NUM_COLS_A);
+    verify_result_scale(h_a, scalar, result2, NUM_ROWS_A, NUM_COLS_A);
+    verify_result_mul(h_a, h_c, result3, NUM_ROWS_A, NUM_COLS_A, NUM_COLS_C);
     
     std::cout << "COMPLETED SUCCESSFULLY" << std::endl;
+
+    cublasDestroy(handle);
 
     return 0;
 }

@@ -2,14 +2,12 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <CudaCompile Include="main.cpp" />
-    <CudaCompile Include="src\utils\matrix_ops.cu" />
     <CudaCompile Include="src\Matrix.cu" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="basic_feedforward_nn.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="inc\utils\matrix_ops.cuh" />
     <ClInclude Include="inc\Matrix.cuh" />
     <ClInclude Include="inc\utils\verity_results.h" />
   </ItemGroup>
