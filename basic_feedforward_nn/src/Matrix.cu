@@ -30,6 +30,13 @@ Matrix::Matrix(cublasHandle_t handle, std::vector<float> data, int NUM_ROWS, int
 	cudaMemcpy(dev_data, data.data(), bytes, cudaMemcpyHostToDevice);
 }
 
+Matrix::Matrix(const Matrix& other) :handle(other.handle), NUM_ROWS(other.NUM_ROWS), NUM_COLS(other.NUM_COLS), dev_data(NULL)
+{
+	size_t bytes = NUM_ROWS * NUM_COLS * sizeof(float);
+	cudaMalloc(&dev_data, bytes);
+	cudaMemcpy(dev_data, other.dev_data, bytes, cudaMemcpyDeviceToDevice);
+}
+
 Matrix::~Matrix()
 {
 	cudaFree(dev_data);
@@ -75,6 +82,40 @@ void Matrix::matrix_mul(Matrix& matrix_a, Matrix& matrix_b)
 	int ldc = m;
 
 	cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, m, n, k, &alpha, matrix_a.dev_data, lda, matrix_b.dev_data, ldb, &beta, dev_data, ldc);
+}
+
+void Matrix::print_shape()
+{
+	printf("R=%d, C=%d\n", NUM_ROWS, NUM_COLS);
+}
+
+Matrix operator+(Matrix& A, Matrix& B)
+{
+	Matrix ret(A.handle, A.NUM_ROWS, A.NUM_COLS, MatrixInitType::ZERO);
+	ret.matrix_add(A, B);
+
+	return ret;
+}
+
+Matrix operator*(Matrix& A, float scalar)
+{
+	Matrix ret(A.handle, A.NUM_ROWS, A.NUM_COLS, MatrixInitType::ZERO);
+	ret.matrix_scale(A, scalar);
+
+	return ret;
+}
+
+Matrix operator*(float scalar, Matrix& A)
+{
+	return A * scalar;
+}
+
+Matrix operator*(Matrix& A, Matrix& B)
+{
+	Matrix ret(A.handle, A.NUM_ROWS, B.NUM_COLS, MatrixInitType::ZERO);
+	ret.matrix_mul(A, B);
+
+	return ret;
 }
 
 std::vector<float> Matrix::export_to_host()

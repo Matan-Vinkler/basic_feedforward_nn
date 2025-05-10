@@ -36,18 +36,14 @@ int main()
     Matrix B(handle, h_b, NUM_ROWS_B, NUM_COLS_B);
     Matrix C(handle, h_c, NUM_ROWS_C, NUM_COLS_C);
 
-    Matrix D1(handle, NUM_ROWS_A, NUM_COLS_A, MatrixInitType::ZERO); // D1 = A + B
-    Matrix D2(handle, NUM_ROWS_A, NUM_COLS_A, MatrixInitType::ZERO); // D2 = scalar * A
-    Matrix D3(handle, NUM_ROWS_A, NUM_COLS_C, MatrixInitType::ZERO); // D3 = A * C
-
-    D1.matrix_add(A, B);
+    Matrix D1 = A + B;
     std::vector<float> result1 = D1.export_to_host();
 
     int scalar = 4;
-    D2.matrix_scale(A, scalar);
+    Matrix D2 = scalar * A;
     std::vector<float> result2 = D2.export_to_host();
 
-    D3.matrix_mul(A, C);
+    Matrix D3 = A * C;
     std::vector<float> result3 = D3.export_to_host();
 
     std::cout << "Calculated matrices, now verifying..." << std::endl;
